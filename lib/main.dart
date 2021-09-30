@@ -1,4 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'dart:async';
 
 void main() => runApp(Eshop());
 
@@ -8,71 +12,109 @@ class Eshop extends StatefulWidget {
 }
 
 class _EshopState extends State<Eshop> {
-  var count = 0;
-    final  jokes = [
-    '"Learn programming to understand programming jokes."',
-    '"Code never lies,comments sometimes do."',
-    '"You are semicolons to my Statements"',
-    '"Programming is 1% writing code and 99% understanding why its not working"',
-    '"I told him I cound not open jar. He told me to download java"',
-    '"Comparing java and javascript is same as comparing car and carpet"',
-    '"Golden rule of programming - If it works dont touch it."'
-  ];
-  void getAotherJoke() {
+  final yourName = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final partnersName = TextEditingController();
 
-    setState(() {
-      if (count == jokes.length - 1) {
-        count = 0;
-      } else {
-        count = count + 1;
-      }
-    });
+  int? lovepercentage;
+  var loading = false;
+ 
+
+  void calculateLove() {
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        loading = true;
+        lovepercentage = null;
+      });
+      Timer(const Duration(seconds: 3), () {
+        setState(() {
+          loading = false;
+          lovepercentage = (Random().nextInt(100));
+        });
+      });
+    }
+  }
+
+  String? validate(text) {
+    if (text!.isEmpty) return 'please add this filed';
+  }
+
+  InputDecoration myInputDecorator(text) {
+    return InputDecoration(
+        hintText: text,
+        contentPadding: const EdgeInsets.all(20.0));
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme:ThemeData(primarySwatch:Colors.pink,
+      textTheme: TextTheme(bodyText2: TextStyle(fontSize: 30,color: Colors.red))),
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text(
-            'JOKE APP',
-            style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
-          backgroundColor: Colors.green,
-          foregroundColor: Colors.black54,
-        ),
-        body: Center(
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-                border:  Border(
-              top:  BorderSide(width: 1.0, color: Colors.black54),
-              bottom: BorderSide(width: 1.0, color: Colors.black54),
+          appBar: AppBar(
+            title:  Row(children: const[
+              Text(
+              'LOVE CALCULATOR',
+              style:  TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
-            gradient: LinearGradient(colors: [Colors.yellow,Colors.green])
-            ),
-            child: Text(
-              jokes[count],
-              style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontStyle: FontStyle.italic),
-                  textAlign: TextAlign.center,
-            ),
+            SizedBox(width: 5,),
+            Icon(Icons.favorite_outlined,color: Colors.white,),
+            ],mainAxisAlignment: MainAxisAlignment.center,),
+            centerTitle: true,
+           
+            foregroundColor: Colors.black54,
+            
           ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: getAotherJoke,
-          backgroundColor: Colors.green,
-          child: const Icon(
-            Icons.refresh_rounded,
-            size: 30,
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      ),
+          body: Form(
+            key: formKey,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 30,
+                ),
+                TextFormField(
+                    controller: yourName,
+                    validator: (text) => validate(text),
+                    decoration: myInputDecorator('your name')),
+                const SizedBox(
+                  height: 30,
+                ),
+                TextFormField(
+                    validator: (text) => validate(text),
+                    controller: partnersName,
+                    decoration: myInputDecorator('partners name')),
+                const SizedBox(
+                  height: 30,
+                ),
+                ElevatedButton.icon(
+                    onPressed: calculateLove,
+                    icon: const Icon(
+                      Icons.favorite_outlined,
+                    ),
+                    label: const Text(
+                      'Calculate Love',
+                      style: TextStyle(fontSize: 25),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 6, horizontal: 15),
+                    )),
+                const SizedBox(
+                  height: 20,
+                ),
+                if (loading)
+                  const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.pink),
+                  ),
+                if (lovepercentage != null)
+                  Text(
+                    '${yourName.text} loves ${partnersName.text} $lovepercentage %',
+                  
+                  ),
+           
+              ],
+            ),
+          )),
       debugShowCheckedModeBanner: false,
     );
   }
